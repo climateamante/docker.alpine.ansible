@@ -1,0 +1,36 @@
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  
+  vars:
+      linode_api_key: ''
+      linode_server_name:
+      linode_datacenter: 3
+      linode_ssh_pub_key: "{{ lookup('file', 'ssh.linode/id_rsa.pub') }}"
+      linode_plan_id: 1
+      linode_distribution_id: 146
+      linode_kernel_id: 210 # GRUB2 to utilize the distribution's kernel for compatibility
+      linode_alert_cpu_threshold: 90
+      linode_alert_diskio_threshold: 10000
+      linode_alert_bwin_threshold: 10
+      linode_alert_bwout_threshold: 10
+      linode_alert_bwquota_threshold: 80
+  
+  tasks:
+      - name: "test linode"
+        linode:
+            api_key: "{{ linode_api_key }}"
+            name: "{{ linode_server_name }}"
+            plan: "{{ linode_plan_id }}"
+            datacenter: "{{ linode_datacenter }}"
+            distribution: "{{ linode_distribution_id }}"
+            kernel_id: "{{ linode_kernel_id }}"
+            ssh_pub_key: "{{ linode_ssh_pub_key }}"
+            alert_cpu_threshold: "{{ linode_alert_cpu_threshold }}"
+            alert_diskio_threshold: "{{ linode_alert_diskio_threshold }}"
+            alert_bwin_threshold : "{{ linode_alert_bwin_threshold }}"
+            alert_bwout_threshold: "{{ linode_alert_bwout_threshold }}"
+            alert_bwquota_threshold: "{{ linode_alert_bwquota_threshold }}"
+            wait: yes
+        register: result
+      - debug: var=linode_server

@@ -1,0 +1,24 @@
+---
+- name: build me a linode
+  hosts: localhost
+  remote_user: "root"
+  become: true
+  gather_facts: no
+  connection: local
+
+  tasks:
+   - set_fact:
+       linode_server_id: "{{ 100 | random }}"
+       
+   - local_action:
+       api_key: ''
+       module: linode
+       state: absent
+       linode_id: 4755346q
+     register: linode_server     
+
+
+   - debug: var=linode_server
+
+   - name: Adding the new box to the dynamic inventory
+     add_host: hostname="{{ linode_server.instance.ipv4  }}" groupname=linode_hosts

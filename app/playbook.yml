@@ -1,0 +1,30 @@
+---
+- name: build me a linode
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+   - local_action:
+       name: dont_make_me
+       module: linode
+       api_key: ''
+       plan: 1
+       datacenter: 3
+       distribution: 146 # important for this example
+       ssh_pub_key: 'ssh-rsa 42'
+       swap: 1024
+       wait: yes
+       wait_timeout: 600
+       state: present
+       alert_bwquota_enabled: True
+       alert_bwquota_threshold: 80
+       alert_bwin_enabled: True
+       alert_bwin_threshold: 10
+       alert_cpu_enabled: True
+       alert_cpu_threshold: 210
+       alert_bwout_enabled: True
+       alert_bwout_threshold: 10
+       alert_diskio_enabled: True
+       alert_diskio_threshold: 10000
+       displaygroup: 'test'
+       watchdog: True

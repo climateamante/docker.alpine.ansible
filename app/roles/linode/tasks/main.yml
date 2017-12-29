@@ -1,0 +1,37 @@
+---
+- name: Create the linode server
+  linode:
+    api_key: "{{ linode_api_key }}"
+    name: "{{ linode_server_name }}"
+    plan: "{{ linode_plan_id }}"
+    datacenter: "{{ linode_datacenter }}"
+    distribution: "{{ linode_distribution_id }}"
+    kernel_id: "{{ linode_kernel_id }}"
+    ssh_pub_key: "{{ linode_ssh_pub_key }}"
+    alert_cpu_threshold: "{{ linode_alert_cpu_threshold }}"
+    alert_diskio_threshold: "{{ linode_alert_diskio_threshold }}"
+    alert_bwin_threshold : "{{ linode_alert_bwin_threshold }}"
+    alert_bwout_threshold: "{{ linode_alert_bwout_threshold }}"
+    alert_bwquota_threshold: "{{ linode_alert_bwquota_threshold }}"
+    wait: yes
+  register: linode_server
+
+- name: Wait until the server has finished booting and OpenSSH is accepting connections
+  wait_for:
+    host: "{{ linode_server.instance.ipv4 }}"
+    port: 22
+    search_regex: OpenSSH
+    timeout: 600
+
+- name: Create the in-memory inventory group
+  add_host:
+    name: "{{ linode_server.instance.ipv4 }}"
+    groups: linode-host
+
+- name: Set the ipv4_address variable
+  set_fact:
+    linode_ipv4_address: "{{ linode_server.instance.ipv4 }}"
+
+- name: Set the linode_server_name variable
+  set_fact:
+    linode__server_name: "{{ linode_server_name | regex_replace('\\s', '_') }}"

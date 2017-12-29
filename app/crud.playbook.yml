@@ -1,0 +1,45 @@
+---
+- name: build me a linode
+  hosts: localhost
+  remote_user: "root"
+  become: true
+  gather_facts: no
+  connection: local
+
+  tasks:
+   - set_fact:
+       linode_server_id: "{{ 100 | random }}"
+       
+   - local_action:
+       api_key: ''
+       datacenter: 3
+       displaygroup: 'ansible'
+       distribution: 146 # important for this example
+       kernel_id: 210 # GRUB2 to utilize the distribution's kernel for compatibility
+       module: linode
+       name: "{{ lookup('pipe','date +%Y-%m-%d-%H-%M-%S') }}"
+       password: "password {{ linode_server_id }} "
+       plan: 1
+       ssh_pub_key: "{{ lookup('file', 'ssh.linode/id_rsa.pub') }}"
+       state: present
+       swap: 1024
+       wait: yes
+       wait_timeout: 600
+       watchdog: True
+       alert_bwin_enabled: True
+       alert_bwin_threshold: 10
+       alert_bwout_enabled: True
+       alert_bwout_threshold: 10
+       alert_bwquota_enabled: True
+       alert_bwquota_threshold: 80
+       alert_cpu_enabled: True
+       alert_cpu_threshold: 90
+       alert_diskio_enabled: True
+       alert_diskio_threshold: 10000
+     register: linode_server     
+
+
+   - debug: var=linode_server
+
+   - name: Adding the new box to the dynamic inventory
+     add_host: hostname="{{ linode_server.instance.ipv4  }}" groupname=linode_hosts
